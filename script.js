@@ -99,33 +99,31 @@ document.addEventListener('DOMContentLoaded', () => {
             height = canvas.height = window.innerHeight;
         });
 
-        const particles = [];
-        const numParticles = 600; 
-        const radius = 120;
+        const numPairs = 120; 
+        const radius = 100;
         const heightStrand = Math.max(height * 1.5, 1200);
-        const twists = 4;
+        const twists = 3.5;
+        const pairs = [];
 
-        for (let i = 0; i < numParticles; i++) {
-            const t = i / numParticles;
+        for (let i = 0; i < numPairs; i++) {
+            const t = i / numPairs;
             const angle = t * Math.PI * 2 * twists;
             const y = (t - 0.5) * heightStrand;
             
-            const strand = i % 2;
-            const phase = strand * Math.PI;
+            // Random start positions for assemble effect
+            const rx1 = (Math.random() - 0.5) * width * 3;
+            const ry1 = (Math.random() - 0.5) * height * 3;
+            const rz1 = (Math.random() - 0.5) * 2000;
             
-            const targetX = Math.cos(angle + phase) * radius;
-            const targetZ = Math.sin(angle + phase) * radius;
-            const targetY = y;
+            const rx2 = (Math.random() - 0.5) * width * 3;
+            const ry2 = (Math.random() - 0.5) * height * 3;
+            const rz2 = (Math.random() - 0.5) * 2000;
 
-            particles.push({
-                x: (Math.random() - 0.5) * width * 3,
-                y: (Math.random() - 0.5) * height * 3,
-                z: (Math.random() - 0.5) * 2000,
-                tx: targetX,
-                ty: targetY,
-                tz: targetZ,
-                baseAngle: angle + phase,
-                yPhase: y
+            pairs.push({
+                y: y,
+                angle: angle,
+                start1: {x: rx1, y: ry1, z: rz1},
+                start2: {x: rx2, y: ry2, z: rz2}
             });
         }
 
@@ -135,69 +133,108 @@ document.addEventListener('DOMContentLoaded', () => {
         const draw = () => {
             ctx.clearRect(0, 0, width, height);
             
-            if (assembleProgress < 1) assembleProgress += 0.005;
+            if (assembleProgress < 1) assembleProgress += 0.004;
             const ease = 1 - Math.pow(1 - assembleProgress, 4);
             time += 0.005;
 
-            const renderParticles = particles.map(p => {
-                const currentTx = p.tx * Math.cos(time) - p.tz * Math.sin(time);
-                const currentTz = p.tz * Math.cos(time) + p.tx * Math.sin(time);
-                
-                const wobbleX = Math.sin(time * 5 + p.yPhase * 0.02) * 15;
-                const wobbleY = Math.cos(time * 4 + p.yPhase * 0.02) * 15;
-
-                const finalX = currentTx + wobbleX;
-                const finalY = p.ty + wobbleY;
-                const finalZ = currentTz;
-
-                const x = p.x + (finalX - p.x) * ease;
-                const y = p.y + (finalY - p.y) * ease;
-                const z = p.z + (finalZ - p.z) * ease;
-
-                return { x, y, z, original: p };
-            });
-
-            renderParticles.sort((a, b) => b.z - a.z);
-
             ctx.save();
-            ctx.translate(width / 2, height / 2);
+            // Move DNA slightly to the right so it doesn't block text, and tilt it
+            ctx.translate(width * 0.7, height * 0.5);
+            ctx.rotate(Math.PI / 12);
             
-            // Draw connecting links between strands
-            if (ease > 0.5) {
-                ctx.lineWidth = 1.5;
-                for (let i = 0; i < renderParticles.length; i++) {
-                    if (i % 6 === 0) { 
-                        const p1 = renderParticles[i];
-                        const p2 = renderParticles.find(p => p !== p1 && Math.abs(p.original.yPhase - p1.original.yPhase) < 10);
-                        if (p2) {
-                            const scale1 = 600 / (600 + p1.z);
-                            const scale2 = 600 / (600 + p2.z);
-                            const alpha = Math.min(1, (scale1 + scale2) / 2) * (ease - 0.5) * 2;
-                            ctx.strokeStyle = `rgba(139, 92, 246, ${alpha * 0.25})`;
-                            ctx.beginPath();
-                            ctx.moveTo(p1.x * scale1, p1.y * scale1);
-                            ctx.lineTo(p2.x * scale2, p2.y * scale2);
-                            ctx.stroke();
-                        }
-                    }
+            ctx.globalCompositeOperation = 'screen';
+
+            const fov = 800;
+            
+            // Calculate current 3D positions
+            const projectedPairs = pairs.map(p => {
+                const angle1 = p.angle + time;
+                const angle2 = p.angle + time + Math.PI;
+                
+                const tx1 = Math.cos(angle1) * radius;
+                const tz1 = Math.sin(angle1) * radius;
+                
+                const tx2 = Math.cos(angle2) * radius;
+                const tz2 = Math.sin(angle2) * radius;
+                
+                const wobbleY = Math.cos(time * 3 + p.y * 0.01) * 20;
+                const ty = p.y + wobbleY;
+
+                // Interpolate from random to target
+                const currX1 = p.start1.x + (tx1 - p.start1.x) * ease;
+                const currY1 = p.start1.y + (ty - p.start1.y) * ease;
+                const currZ1 = p.start1.z + (tz1 - p.start1.z) * ease;
+                
+                const currX2 = p.start2.x + (tx2 - p.start2.x) * ease;
+                const currY2 = p.start2.y + (ty - p.start2.y) * ease;
+                const currZ2 = p.start2.z + (tz2 - p.start2.z) * ease;
+
+                const scale1 = fov / (fov + currZ1);
+                const scale2 = fov / (fov + currZ2);
+                
+                return {
+                    p1: { x: currX1 * scale1, y: currY1 * scale1, z: currZ1, s: scale1 },
+                    p2: { x: currX2 * scale2, y: currY2 * scale2, z: currZ2, s: scale2 }
+                };
+            });
+            
+            // Draw backbone 1
+            ctx.beginPath();
+            for (let i = 0; i < projectedPairs.length; i++) {
+                const pt = projectedPairs[i].p1;
+                if (pt.s > 0) {
+                    if (i === 0) ctx.moveTo(pt.x, pt.y);
+                    else ctx.lineTo(pt.x, pt.y);
                 }
             }
+            ctx.strokeStyle = `rgba(139, 92, 246, ${0.15 * ease})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
 
-            renderParticles.forEach(p => {
-                const scale = 600 / (600 + p.z);
-                if (scale < 0) return;
+            // Draw backbone 2
+            ctx.beginPath();
+            for (let i = 0; i < projectedPairs.length; i++) {
+                const pt = projectedPairs[i].p2;
+                if (pt.s > 0) {
+                    if (i === 0) ctx.moveTo(pt.x, pt.y);
+                    else ctx.lineTo(pt.x, pt.y);
+                }
+            }
+            ctx.stroke();
 
-                const px = p.x * scale;
-                const py = p.y * scale;
-                const r = Math.max(0.5, 4 * scale);
-
-                const alpha = Math.min(1, Math.max(0.1, scale * ease));
-                ctx.fillStyle = `rgba(167, 139, 250, ${alpha})`;
-                ctx.shadowBlur = 15 * scale;
-                ctx.shadowColor = `rgba(139, 92, 246, ${alpha})`;
+            // Draw base pairs
+            if (ease > 0.4) {
+                ctx.beginPath();
+                for (let i = 0; i < projectedPairs.length; i++) {
+                    const pt1 = projectedPairs[i].p1;
+                    const pt2 = projectedPairs[i].p2;
+                    if (pt1.s > 0 && pt2.s > 0 && i % 3 === 0) {
+                        ctx.moveTo(pt1.x, pt1.y);
+                        ctx.lineTo(pt2.x, pt2.y);
+                    }
+                }
+                ctx.strokeStyle = `rgba(167, 139, 250, ${(ease - 0.4) * 0.15})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+            
+            // Draw glowing nodes
+            const allDots = [];
+            projectedPairs.forEach(p => {
+                allDots.push(p.p1, p.p2);
+            });
+            allDots.sort((a, b) => b.z - a.z); // z-sort for proper overlapping shadows
+            
+            allDots.forEach(pt => {
+                if (pt.s < 0) return;
+                const r = Math.max(0.5, 3.5 * pt.s);
+                const alpha = Math.min(1, Math.max(0.1, pt.s * ease));
                 
                 ctx.beginPath();
-                ctx.arc(px, py, r, 0, Math.PI * 2);
+                ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
+                ctx.shadowBlur = 15 * pt.s;
+                ctx.shadowColor = `rgba(167, 139, 250, ${alpha})`;
                 ctx.fill();
             });
 
