@@ -320,3 +320,67 @@ document.addEventListener('DOMContentLoaded', () => {
         Logo3D.create(canvas, { size: 34, baseSpeed: 0.012 });
     });
 });
+
+    // SETTINGS PANEL & THEMES
+    const settingsBtn = document.getElementById('openSettingsBtn');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsOverlay = document.getElementById('settingsOverlay');
+    
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.add('open');
+            settingsOverlay.classList.add('show');
+        });
+        
+        const closeSettings = () => {
+            settingsPanel.classList.remove('open');
+            settingsOverlay.classList.remove('show');
+        };
+        
+        closeSettingsBtn.addEventListener('click', closeSettings);
+        settingsOverlay.addEventListener('click', closeSettings);
+        
+        // Themes
+        const themeCards = document.querySelectorAll('.theme-card');
+        themeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                themeCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                const theme = card.getAttribute('data-theme');
+                document.body.className = ''; // reset
+                document.body.classList.add(	heme- + theme);
+                
+                // Update 3D logo colors based on theme if possible
+                // Currently Logo3D doesn't expose refreshColors in our simplified version,
+                // but setting CSS vars is enough for the rest of the site.
+            });
+        });
+        
+        // Background Particles Toggle
+        const bgToggle = document.getElementById('bgEffectsToggle');
+        bgToggle.addEventListener('change', (e) => {
+            const bgEffects = document.querySelector('.background-effects');
+            if (bgEffects) {
+                bgEffects.style.opacity = e.target.checked ? '1' : '0';
+                bgEffects.style.transition = 'opacity 0.3s ease';
+            }
+        });
+
+        // Lang Switch logic (visual only for now)
+        const langBtns = document.querySelectorAll('.lang-btn');
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                langBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        
+        const navLangSpans = document.querySelectorAll('.lang-switch span');
+        navLangSpans.forEach(span => {
+            span.addEventListener('click', () => {
+                navLangSpans.forEach(s => s.classList.remove('active'));
+                span.classList.add('active');
+            });
+        });
+    }

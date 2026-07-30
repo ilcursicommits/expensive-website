@@ -16,21 +16,89 @@
         <div class="bg-character"></div>
     </div>
 
-    <nav class="main-nav">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+    <nav class="main-nav new-nav">
+        <div class="nav-left">
+            <button class="icon-btn" id="openSettingsBtn" style="cursor:pointer;" title="Настройки">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+            <a href="#" class="btn btn-primary btn-sm">Скачать</a>
+            <a href="dashboard.html" class="btn btn-outline btn-sm">Войти</a>
+        </div>
+
+        <div class="logo nav-center">
             <canvas id="navLogo3d" style="width: 34px; height: 34px; pointer-events: auto; cursor: pointer;"></canvas>
             <div>EXPENSIVE <span>3.3 BETA</span></div>
         </div>
-        <ul class="nav-links">
-            <li><a href="#features">Преимущества</a></li>
-            <li><a href="#pricing">Тарифы</a></li>
-            <li><a href="#contact">Контакты</a></li>
-        </ul>
-        <a href="dashboard.html" class="btn btn-outline auth-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-            Личный Кабинет
-        </a>
+
+        <div class="nav-right">
+            <ul class="nav-links">
+                <li><a href="#features">Модули</a></li>
+                <li><a href="#pricing">Продукты</a></li>
+                <li><a href="#changelog">Чейнджлог</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+            <div class="lang-switch">
+                <span class="active">RU</span>
+                <span>EN</span>
+            </div>
+            <div class="nav-socials">
+                <a href="#" class="icon-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2H3v16h5v4l4-4h9z"></path></svg></a>
+                <a href="#" class="icon-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></a>
+            </div>
+        </div>
     </nav>
+
+    <!-- Settings Panel -->
+    <div class="settings-overlay" id="settingsOverlay"></div>
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h3>Настройки</h3>
+            <button class="close-settings" id="closeSettingsBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        
+        <div class="settings-section">
+            <h4>ЯЗЫК</h4>
+            <div class="lang-toggle-group">
+                <button class="lang-btn active">Русский</button>
+                <button class="lang-btn">English</button>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h4>ТЕМА</h4>
+            <div class="theme-grid">
+                <div class="theme-card active" data-theme="original">
+                    <div class="theme-colors"><div style="background:#d9b978"></div><div style="background:#8a7bff"></div></div>
+                    <span>Original</span>
+                </div>
+                <div class="theme-card" data-theme="winter">
+                    <div class="theme-colors"><div style="background:#bfe4ff"></div><div style="background:#5f9fe0"></div></div>
+                    <span>Зима</span>
+                </div>
+                <div class="theme-card" data-theme="emerald">
+                    <div class="theme-colors"><div style="background:#57e39a"></div><div style="background:#0f8f7a"></div></div>
+                    <span>Изумруд</span>
+                </div>
+                <div class="theme-card" data-theme="midnight">
+                    <div class="theme-colors"><div style="background:#c084fc"></div><div style="background:#f472b6"></div></div>
+                    <span>Полночь</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h4>ЭФФЕКТЫ</h4>
+            <div class="toggle-row">
+                <span>Частицы фона</span>
+                <label class="switch">
+                    <input type="checkbox" id="bgEffectsToggle" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+    </div>
 
     <header class="hero">
         <div class="hero-content">
