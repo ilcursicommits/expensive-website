@@ -173,4 +173,150 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     initWaves();
+
+    // CUSTOM LIQUID CURSOR
+    const cursorCore = document.createElement('div');
+    cursorCore.id = 'cursor-core';
+    const cursorBlob = document.createElement('div');
+    cursorBlob.id = 'cursor-blob';
+    document.body.appendChild(cursorBlob);
+    document.body.appendChild(cursorCore);
+
+    let cursX = window.innerWidth/2, cursY = window.innerHeight/2;
+    let blobX = cursX, blobY = cursY;
+    
+    document.addEventListener('mousemove', (e) => {
+        cursX = e.clientX;
+        cursY = e.clientY;
+        cursorCore.style.transform = `translate(${cursX}px, ${cursY}px) translate(-50%, -50%)`;
+        
+        // Add trail dots randomly
+        if (Math.random() < 0.2) {
+            const trail = document.createElement('div');
+            trail.className = 'trail-dot';
+            trail.style.left = `${cursX}px`;
+            trail.style.top = `${cursY}px`;
+            trail.style.transform = `translate(-50%, -50%)`;
+            document.body.appendChild(trail);
+            setTimeout(() => trail.remove(), 600);
+        }
+    });
+
+    const drawBlob = () => {
+        blobX += (cursX - blobX) * 0.15;
+        blobY += (cursY - blobY) * 0.15;
+        cursorBlob.style.transform = `translate(${blobX}px, ${blobY}px) translate(-50%, -50%)`;
+        requestAnimationFrame(drawBlob);
+    };
+    drawBlob();
+
+    document.addEventListener('mousedown', (e) => {
+        const ripple = document.createElement('div');
+        ripple.className = 'click-ripple';
+        ripple.style.left = `${e.clientX}px`;
+        ripple.style.top = `${e.clientY}px`;
+        ripple.style.transform = `translate(-50%, -50%)`;
+        document.body.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+    });
+
+    document.querySelectorAll('a, button, .price-card, .feature-card, .dash-card').forEach(el => {
+        el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+
+    // REAL 3D LOGO
+    const Logo3D = (function(){
+        if(typeof THREE === 'undefined') return { create(){}};
+
+        function roundedRectPath(path, x, y, w, h, r){
+            path.moveTo(x+r, y);
+            path.lineTo(x+w-r, y);
+            path.quadraticCurveTo(x+w, y, x+w, y+r);
+            path.lineTo(x+w, y+h-r);
+            path.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+            path.lineTo(x+r, y+h);
+            path.quadraticCurveTo(x, y+h, x, y+h-r);
+            path.lineTo(x, y+r);
+            path.quadraticCurveTo(x, y, x+r, y);
+        }
+
+        const outer = new THREE.Shape();
+        roundedRectPath(outer, -1, -1, 2, 2, 0.55);
+        const holePath = new THREE.Path();
+        roundedRectPath(holePath, -0.56, -0.56, 1.12, 1.12, 0.3);
+        outer.holes.push(holePath);
+
+        const sharedGeometry = new THREE.ExtrudeGeometry(outer, {
+            depth:0.36, bevelEnabled:true, bevelThickness:0.07, bevelSize:0.06, bevelSegments:4, curveSegments:14
+        });
+        sharedGeometry.center();
+
+        const instances = [];
+
+        function create(canvas, opts){
+            opts = opts || {};
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+            camera.position.set(0, 0, 3.4);
+
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x8a7bff,
+                emissive: 0x8a7bff,
+                emissiveIntensity: 0.55,
+                metalness: 0.35,
+                roughness: 0.22,
+            });
+            const mesh = new THREE.Mesh(sharedGeometry, material);
+            mesh.rotation.z = Math.PI/4;
+            scene.add(mesh);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+            const lightA = new THREE.PointLight(0xd9b978, 2.2, 12);
+            const lightB = new THREE.PointLight(0x8a7bff, 1.6, 12);
+            scene.add(lightA, lightB);
+
+            function resize(){
+                const w = canvas.clientWidth || opts.size || 34;
+                const h = canvas.clientHeight || opts.size || 34;
+                renderer.setSize(w, h, false);
+                camera.aspect = w/h;
+                camera.updateProjectionMatrix();
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            const inst = {
+                canvas, renderer, scene, camera, mesh, material, lightA, lightB,
+                spinSpeed: opts.baseSpeed || 0.006,
+                burstSpin: 0, tiltX: 0, tiltY: 0, targetTiltX: 0, targetTiltY: 0, interactive: !!opts.interactive,
+            };
+            instances.push(inst);
+            return inst;
+        }
+
+        let t = 0;
+        function tick(){
+            requestAnimationFrame(tick);
+            t += 0.016;
+            instances.forEach(inst=>{
+                inst.burstSpin *= 0.94;
+                inst.mesh.rotation.y += inst.spinSpeed + inst.burstSpin;
+                inst.mesh.rotation.x = Math.sin(t*0.6) * 0.12;
+                inst.lightA.position.set(Math.cos(t*0.7)*3, Math.sin(t*0.5)*3, 2.5);
+                inst.lightB.position.set(Math.cos(t*0.7+Math.PI)*3, Math.sin(t*0.5+Math.PI)*3, 2.2);
+                inst.renderer.render(inst.scene, inst.camera);
+            });
+        }
+        tick();
+
+        return { create };
+    })();
+
+    const canvasElements = document.querySelectorAll('#navLogo3d');
+    canvasElements.forEach(canvas => {
+        Logo3D.create(canvas, { size: 34, baseSpeed: 0.012 });
+    });
 });

@@ -6,16 +6,21 @@
     <title>Expensive 3.3 BETA</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
     <div class="background-effects">
+        <div class="grain"></div>
         <div class="glow-orb orb-1"></div>
         <div class="glow-orb orb-2"></div>
         <div class="bg-character"></div>
     </div>
 
     <nav class="main-nav">
-        <div class="logo">EXPENSIVE <span>3.3 BETA</span></div>
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <canvas id="navLogo3d" style="width: 34px; height: 34px; pointer-events: auto; cursor: pointer;"></canvas>
+            <div>EXPENSIVE <span>3.3 BETA</span></div>
+        </div>
         <ul class="nav-links">
             <li><a href="#features">Преимущества</a></li>
             <li><a href="#pricing">Тарифы</a></li>
@@ -131,7 +136,7 @@
                 <a href="#" class="btn btn-secondary">Купить</a>
             </div>
             <div class="price-card popular">
-                <div class="popular-badge">ХИТ ПРОДАЖ</div>
+                <div class="popular-badge" style="background: #d9b978; color: #000; box-shadow: 0 0 15px rgba(217,185,120,0.5);">Хит продаж</div>
                 <h3>1 Месяц</h3>
                 <div class="price">549₽</div>
                 <ul class="price-features">
