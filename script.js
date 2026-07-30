@@ -17,24 +17,45 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
             
             // Dynamic glow effect inside card
-            let glow = card.querySelector('.glow-effect');
-            if (!glow) {
-                glow = document.createElement('div');
+            let glowContainer = card.querySelector('.glow-container');
+            if (!glowContainer) {
+                glowContainer = document.createElement('div');
+                glowContainer.className = 'glow-container';
+                glowContainer.style.position = 'absolute';
+                glowContainer.style.top = '0';
+                glowContainer.style.left = '0';
+                glowContainer.style.width = '100%';
+                glowContainer.style.height = '100%';
+                glowContainer.style.overflow = 'hidden';
+                glowContainer.style.borderRadius = 'inherit';
+                glowContainer.style.pointerEvents = 'none';
+                glowContainer.style.zIndex = '0';
+                card.style.position = 'relative';
+                
+                // Keep content above glow
+                Array.from(card.children).forEach(child => {
+                    if(child !== glowContainer) {
+                        child.style.position = 'relative';
+                        child.style.zIndex = '1';
+                    }
+                });
+
+                const glow = document.createElement('div');
                 glow.className = 'glow-effect';
                 glow.style.position = 'absolute';
                 glow.style.width = '200px';
                 glow.style.height = '200px';
-                glow.style.background = 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)';
+                glow.style.background = 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)';
                 glow.style.borderRadius = '50%';
-                glow.style.pointerEvents = 'none';
                 glow.style.transition = 'opacity 0.3s';
                 glow.style.opacity = '0';
                 glow.style.mixBlendMode = 'screen';
-                card.style.position = 'relative';
-                card.style.overflow = 'hidden';
-                card.appendChild(glow);
+                
+                glowContainer.appendChild(glow);
+                card.appendChild(glowContainer);
             }
             
+            const glow = glowContainer.querySelector('.glow-effect');
             glow.style.left = `${x - 100}px`;
             glow.style.top = `${y - 100}px`;
             glow.style.opacity = '1';
@@ -42,8 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-            const glow = card.querySelector('.glow-effect');
-            if (glow) glow.style.opacity = '0';
+            const glowContainer = card.querySelector('.glow-container');
+            if (glowContainer) {
+                const glow = glowContainer.querySelector('.glow-effect');
+                if (glow) glow.style.opacity = '0';
+            }
         });
     });
 });
