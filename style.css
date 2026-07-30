@@ -50,31 +50,26 @@ body {
     0% { background-position: 0 0; }
     100% { background-position: 0 50px; }
 }
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -1;
-    overflow: hidden;
-}
 .glow-orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.5;
     animation: floatOrb 10s infinite alternate ease-in-out;
+    pointer-events: none;
+    z-index: 1;
 }
 @keyframes floatOrb {
     0% { transform: translate(0, 0) scale(1); }
     100% { transform: translate(50px, -50px) scale(1.1); }
 }
 .orb-1 {
-    width: 600px; height: 600px;
-    background: var(--primary);
-    top: -200px; left: -100px;
+    width: 1000px; height: 1000px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+    top: -400px; left: -300px;
 }
 .orb-2 {
-    width: 500px; height: 500px;
-    background: #4f46e5;
-    bottom: -100px; right: -100px;
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 60%);
+    bottom: -300px; right: -200px;
 }
 
 /* Navigation */
