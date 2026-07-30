@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Opacity fades out at top and bottom lines
                 const opacity = Math.sin(normY * Math.PI) * 0.5;
-                ctx.strokeStyle = `rgba(139, 92, 246, ${opacity})`;
+                ctx.strokeStyle = `rgba(${window.waveColorRGB || '139, 92, 246'}, ${opacity})`;
                 ctx.stroke();
             }
             
@@ -349,11 +349,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.classList.add('active');
                 const theme = card.getAttribute('data-theme');
                 document.body.className = ''; // reset
-                document.body.classList.add(	heme- + theme);
+                document.body.classList.add(`theme-` + theme);
                 
-                // Update 3D logo colors based on theme if possible
-                // Currently Logo3D doesn't expose refreshColors in our simplified version,
-                // but setting CSS vars is enough for the rest of the site.
+                setTimeout(() => {
+                    const primary = getComputedStyle(document.body).getPropertyValue('--primary').trim();
+                    if(primary.startsWith('#')) {
+                        let hex = primary.replace('#','');
+                        if(hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+                        let r = parseInt(hex.substring(0,2), 16);
+                        let g = parseInt(hex.substring(2,4), 16);
+                        let b = parseInt(hex.substring(4,6), 16);
+                        window.waveColorRGB = `${r}, ${g}, ${b}`;
+                    }
+                }, 50);
             });
         });
         
